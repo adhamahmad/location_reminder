@@ -15,6 +15,26 @@
         android:layout_height="match_parent">
         <!--TODO: Add the map fragment for the user to select the location-->
 
+        <fragment
+            android:id="@+id/map_fragment"
+            class="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="52dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="447dp"
+            android:layout_height="67dp"
+            android:text="@string/save"
+            app:layout_constraintBottom_toBottomOf="@+id/map_fragment"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/map_fragment"
+            app:layout_constraintVertical_bias="1.0" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

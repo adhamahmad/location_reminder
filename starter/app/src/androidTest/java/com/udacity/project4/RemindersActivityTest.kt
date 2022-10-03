@@ -1,16 +1,30 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorActivity
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -18,6 +32,21 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+
+import android.R
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
+
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
+import com.google.android.material.internal.ContextUtils.getActivity
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
+
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -64,8 +93,42 @@ class RemindersActivityTest :
             repository.deleteAllReminders()
         }
     }
+    // An idling resource that waits for Data Binding to have no pending bindings.
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
+    @Before
+    fun registerIdlingResource() {
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
 
+    @After
+    fun unregisterIdlingResource() {
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
 
 //    TODO: add End to End testing to the app
+
+    @Test
+    fun saveReminder_showSnackBarTitleError(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(com.udacity.project4.R.id.addReminderFAB)).perform(click())
+        onView(withId(com.udacity.project4.R.id.saveReminder)).perform(click())
+        onView(withText(com.udacity.project4.R.string.err_enter_title)).check(matches(isDisplayed()))
+        activityScenario.close()
+    }
+
+    @Test
+    fun saveReminder_showSnackBarLocationError(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(com.udacity.project4.R.id.addReminderFAB)).perform(click())
+        onView(withId(com.udacity.project4.R.id.reminderTitle)).perform(typeText("Title"))
+        onView(withId(com.udacity.project4.R.id.saveReminder)).perform(closeSoftKeyboard(), click())
+        onView(withText(com.udacity.project4.R.string.err_select_location)).check(matches(isDisplayed()))
+        activityScenario.close()
+    }
+
 
 }
