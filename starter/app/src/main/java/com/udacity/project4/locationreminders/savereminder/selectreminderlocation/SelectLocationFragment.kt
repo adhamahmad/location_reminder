@@ -11,9 +11,12 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn.requestPermissions
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,6 +29,7 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 
 import org.koin.android.ext.android.inject
+import java.util.*
 
 class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
@@ -38,7 +42,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     var Poi : PointOfInterest? =null
     var lat : Double = 0.0
     var long : Double = 0.0
-    var title = ""
+    var title :String? = null
 
     private lateinit var map: GoogleMap
     private  val REQUEST_LOCATION_PERMISSION = 1
@@ -64,10 +68,11 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             map = it
             enableMyLocation(map)
             setMapStyle(map)
+            setMapLongClick(map)
             setPoiClick(map)
         }
         binding.saveButton.setOnClickListener{
-            if(Poi!= null){
+            if(title!= null){
                 onLocationSelected()
             }else{
                 Toast.makeText(requireContext(),"Please choose a location",Toast.LENGTH_SHORT).show()
@@ -136,72 +141,40 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
 
     private fun LocationPermissionApproved(): Boolean {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
-            Toast.makeText(requireContext(),"Please enable the location request",Toast.LENGTH_SHORT).show()
-
-            return false
-        }
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
-
-    @TargetApi(29)
-    private fun BackGroundLocationApproved():Boolean{
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
-            Toast.makeText(requireContext(),"sds",Toast.LENGTH_SHORT).show()
-            return false
-        }
-    }
+//
+//    @TargetApi(29)
+//    private fun BackGroundLocationApproved():Boolean{
+//        if (ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//            return true
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                requireActivity(),
+//                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+//                REQUEST_LOCATION_PERMISSION
+//            )
+//            Toast.makeText(requireContext(),"sds",Toast.LENGTH_SHORT).show()
+//            return false
+//        }
+//    }
 
 
     private fun enableMyLocation(map1:GoogleMap){
         if(LocationPermissionApproved()){
-            if(runningQOrLater){
-                if(BackGroundLocationApproved()){
-                    map1.setMyLocationEnabled(true)
-                    moveToUserLocation()
-                } else{
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf<String>(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        REQUEST_LOCATION_PERMISSION
-                    )
-                    Toast.makeText(requireContext(),"Please enable the backgrounf location request",Toast.LENGTH_SHORT).show()
-                }
-            }else{
-                map1.setMyLocationEnabled(true)
-                moveToUserLocation()
-            }
-            Log.e("SelectLocationFrag","enableMyLocation")
-//            map1.animateCamera( CameraUpdateFactory.zoomTo( 12.0f ) )
-
-        }else{
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
-
+            map1.setMyLocationEnabled(true)
+            moveToUserLocation()
+        }
+        else{
+            Toast.makeText(requireContext(),"Please enable the Location permission ",Toast.LENGTH_SHORT).show()
+            requestLocationPermission()
         }
     }
 
@@ -270,5 +243,34 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             title = poi.name
             poiMarker.showInfoWindow()
         }
+    }
+
+    private fun setMapLongClick(map: GoogleMap) {
+        map.setOnMapLongClickListener() {
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                it.latitude,
+                it.longitude
+            )
+            val  poiMarker = map.addMarker(
+                MarkerOptions()
+                    .position(it)
+                    .title(getString(R.string.dropped_pin))
+                    .snippet(snippet)
+            )
+            poiMarker.showInfoWindow()
+            Poi = null
+            lat = it.latitude
+            long = it.longitude
+            title = getString(R.string.dropped_pin)
+        }
+    }
+
+    private fun requestLocationPermission(){
+        requestPermissions(
+            arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_LOCATION_PERMISSION
+        )
     }
 }

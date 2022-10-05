@@ -44,6 +44,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import com.google.android.material.internal.ContextUtils.getActivity
+import com.udacity.project4.utils.EspressoIdlingResource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 
@@ -98,11 +99,13 @@ class RemindersActivityTest :
     @Before
     fun registerIdlingResource() {
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
     }
 
     @After
     fun unregisterIdlingResource() {
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
     }
 
 //    TODO: add End to End testing to the app
@@ -130,5 +133,23 @@ class RemindersActivityTest :
         activityScenario.close()
     }
 
+    @Test
+    fun saveReminder_showReminderSavedToast(){
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(com.udacity.project4.R.id.addReminderFAB)).perform(click())
+        onView(withId(com.udacity.project4.R.id.reminderTitle)).perform(typeText("Title"),
+            closeSoftKeyboard())
+        onView(withId(com.udacity.project4.R.id.select_Location)).perform(click())
+        onView(withId(com.udacity.project4.R.id.map_fragment)).perform(longClick())
+       
+        onView(withId(com.udacity.project4.R.id.save_button)).perform(click())
+
+        onView(withId(com.udacity.project4.R.id.saveReminder)).perform( click())
+        onView(withText(com.udacity.project4.R.string.reminder_saved)).inRoot(withDecorView(not(`is`(getActivity(ApplicationProvider.getApplicationContext())?.window?.decorView)))).check(matches(isDisplayed()))
+
+        activityScenario.close()
+    }
 
 }

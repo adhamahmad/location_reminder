@@ -81,7 +81,7 @@ private lateinit var  remindersList: MutableList<ReminderDTO>
     fun loadReminders_ReturnError(){
         dataSource.setReturnError(true)
         viewModel.loadReminders()
-        assertThat(viewModel.showSnackBar.value,`is`("No reminders found"))
+        assertThat(viewModel.showSnackBar.value,`is`("Reminders were unable to get retrieved"))
     }
 
 }
