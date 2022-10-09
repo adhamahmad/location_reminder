@@ -173,7 +173,6 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             moveToUserLocation()
         }
         else{
-            Toast.makeText(requireContext(),"Please enable the Location permission ",Toast.LENGTH_SHORT).show()
             requestLocationPermission()
         }
     }
@@ -206,6 +205,8 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 enableMyLocation(map)
                 Log.e("SelectLocationFrag","enableMyLocation OnRequest")
+            }else{ // error message when permission is denied
+                Toast.makeText(requireContext(),"Please enable the Location permission ",Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -268,9 +269,9 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     }
 
     private fun requestLocationPermission(){
-        requestPermissions(
-            arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-            REQUEST_LOCATION_PERMISSION
-        )
+            requestPermissions(
+                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION
+            )
     }
 }
