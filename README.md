@@ -1,6 +1,13 @@
 # Location Reminder
 
-A Todo list app with location reminders that reminds the user by sending a notification when he reaches a specific location. The app will require the user to create an account and login to set and access reminders.
+A Todo list app with location reminders that reminds the user by sending a notification when he reaches a specific location. The app will require the user to create an account and login to set and access reminders. The app is built using MVVM architecture.
+
+Some of the technologies and concepts  used in this app: 
+- Authentication usig firebase UI 
+- Google maps  API 
+= Geofencing
+- Notifications
+- Use of Espresso and Mockito to test the app.
 
 ## Getting Started
 
@@ -42,9 +49,14 @@ Explain what each test does and why
 
 ```
 1.androidTest
-        //TODO: Students explain their testing here.
+        RemindersActivityTest: 
+                An end to end test for the app that also ensures the appropriate snackbar errors and toast messages are shown.
+        ReminderListFragment:
+                Test for the ReminderList Fragment.
 2. test
-        //TODO: Students explain their testing here.
+       1) RemniderListViewModelTest
+       2) SaveReminderViewModelTest
+       
 ```
 
 ## Project Instructions
@@ -65,11 +77,6 @@ Explain what each test does and why
         b. Add testing for the error messages.
         c. Add End-To-End testing for the Fragments navigation.
 
-
-## Student Deliverables:
-
-1. APK file of the final project.
-2. Git Repository with the code.
 
 ## Built With
 
