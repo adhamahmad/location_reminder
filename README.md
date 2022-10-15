@@ -5,7 +5,7 @@ A Todo list app with location reminders that reminds the user by sending a notif
 Some of the technologies and concepts  used in this app: 
 - Authentication usig firebase UI 
 - Google maps  API 
-= Geofencing
+- Geofencing
 - Notifications
 - Use of Espresso and Mockito to test the app.
 
